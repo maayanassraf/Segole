@@ -6,10 +6,8 @@ function App() {
 
   const [eth, setEth] = useState({currentValue: 0, change: 0, color: ''})
   const [dots, setDots] = useState([])
-  const [ethToDollar, setEthToDollar] = useState(0)
-  const [dollarToEth ,setDollarToEth] = useState(0)
-  const [convertToDollar, setConvertToDollar] = useState(0)
-  const [convertToEth, setConvertToEth] = useState(0)
+  const [ethToDollar, setEthToDollar] = useState({ input: 0, output: 0 })
+  const [dollarToEth ,setDollarToEth] = useState({ input: 0, output: 0 })
 
   useEffect(() => {
     const getData = async () => {
@@ -38,13 +36,11 @@ function App() {
   }, [])
 
   const handleConvertionToDollar = (e) => {
-    setEthToDollar(e.target.value)
-    setConvertToDollar((e.target.value * eth.currentValue).toFixed(2))
+    setEthToDollar({input: e.target.value, output: (e.target.value * eth.currentValue).toFixed(2)})
   }
 
-  const handleConvertoinToEth = (e) => {
-    setDollarToEth(e.target.value)
-    setConvertToEth((e.target.value / eth.currentValue).toFixed(2))
+  const handleConvertionToEth = (e) => {
+    setDollarToEth({input: e.target.value, output: (e.target.value / eth.currentValue).toFixed(2)})
   }
 
   return (
@@ -56,14 +52,14 @@ function App() {
         <LineGraph dots={dots} />
       </div>
       
-      <div className='convertor'>
+      <div className='convertors'>
         <label>Eth To Dollar</label>
-        <input type='text' value={ethToDollar} onChange={handleConvertionToDollar} />
-        <p>{convertToDollar}$</p>
+        <input type='text' value={ethToDollar.input} onChange={handleConvertionToDollar} />
+        <p>{ethToDollar.output}$</p>
 
         <label>Dollar To Eth</label>
-        <input type='text' value={dollarToEth} onChange={handleConvertoinToEth} />
-        <p>{convertToEth} ETH</p>
+        <input type='text' value={dollarToEth.input} onChange={handleConvertionToEth} />
+        <p>{dollarToEth.output} ETH</p>
       </div>
 
     </div>

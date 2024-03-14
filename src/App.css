@@ -14,22 +14,24 @@
 }
 
 .eth{
-  width: 95%;
-  padding-left: 5%;
+  width: 94%;
+  padding: 0 3%;
   background-color: black;
   border-radius: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
+  font-size: 18px;
 }
 
 .change{
   width: fit-content;
   height: fit-content;
   color: white;
-  padding: 2px;
+  padding: 1px;
   border-radius: 5px;
+  margin-left: 5px;
 }
 
-.convertor{
+.convertors{
   display: flex;
   flex-direction: column;
 }
