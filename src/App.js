@@ -20,7 +20,7 @@ function App() {
           const change = ((currentValue - yesterday) / currentValue) * 100
           const color = change > 0 ? 'green' : 'red'
 
-          let last_week = data.prices.slice(-7)
+          let last_week = data.prices.slice(-10)
           last_week = last_week.map(day => day[1])
 
           setEth({currentValue: currentValue.toFixed(2), change: change.toFixed(2), color: color})
