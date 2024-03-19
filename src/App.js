@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import LineGraph from './LineGraph';
 import './App.css';
 
 function App() {
 
   const [eth, setEth] = useState({currentValue: 0, change: 0, color: ''})
-  const [dots, setDots] = useState([])
-  const [ethToDollar, setEthToDollar] = useState({ input: 0, output: 0 })
-  const [dollarToEth ,setDollarToEth] = useState({ input: 0, output: 0 })
+  const [dots, setDots] = useState({ prices: [], hours: [] })
+  const [ethValue, setEthValue] = useState(0)
+  const [dollarValue ,setDollarValue] = useState(0)
+  const intervalRef = useRef(null)
 
   useEffect(() => {
     const getData = async () => {
@@ -19,13 +20,20 @@ function App() {
           const yesterday = data.prices[0][1]
           const change = ((currentValue - yesterday) / currentValue) * 100
           const color = change > 0 ? 'green' : 'red'
-
-          let last_week = data.prices.slice(-10)
-          last_week = last_week.map(day => day[1])
+          
+          let priceAndHour = data.prices.map(price => {
+            let t = new Date(price[0])
+            if(t.getMinutes() < 4)
+              return {price: price[1].toFixed(2), hour: `${t.getHours()}:00`}
+            return null
+          })
+          priceAndHour = priceAndHour.filter(value => value)
+          const hours = priceAndHour.map(value => value.hour)
+          const prices = priceAndHour.map(value => value.price)
 
           setEth({currentValue: currentValue.toFixed(2), change: change.toFixed(2), color: color})
-          setDots(last_week)
-        } 
+          setDots({ prices: prices, hours: hours })
+        }
       }
       catch{
         console.log("Error!")
@@ -33,14 +41,32 @@ function App() {
     }
     
     getData()
+
+    intervalRef.current = setInterval(async () => {
+        getData()
+    }, 1000 * 0.5) 
+
+    return () => {
+      clearInterval(intervalRef.current)
+    }
   }, [])
 
   const handleConvertionToDollar = (e) => {
-    setEthToDollar({input: e.target.value, output: (e.target.value * eth.currentValue).toFixed(2)})
+    if(e.target.value < 0)
+      setDollarValue(0)
+    else{
+      setEthValue(e.target.value)
+      setDollarValue((e.target.value * eth.currentValue).toFixed(2))
+    }
   }
 
   const handleConvertionToEth = (e) => {
-    setDollarToEth({input: e.target.value, output: (e.target.value / eth.currentValue).toFixed(2)})
+    if(e.target.value < 0)
+      setEthValue(0)
+    else{
+      setDollarValue(e.target.value)
+      setEthValue((e.target.value / eth.currentValue).toFixed(2))
+    }
   }
 
   return (
@@ -53,13 +79,19 @@ function App() {
       </div>
       
       <div className='convertors'>
-        <label>Eth To Dollar</label>
-        <input type='text' value={ethToDollar.input} onChange={handleConvertionToDollar} />
-        <p>{ethToDollar.output}$</p>
+        <p>Convert:</p>
 
-        <label>Dollar To Eth</label>
-        <input type='text' value={dollarToEth.input} onChange={handleConvertionToEth} />
-        <p>{dollarToEth.output} ETH</p>
+        <div className='convertors-inputs'>
+
+          <div className='convertor'>
+            <label>ETH:</label>
+            <input type='number' value={ethValue} onChange={handleConvertionToDollar} placeholder='ETH' />
+          </div>
+
+          <div className='convertor dollar'>
+            <label>DOLLAR:</label>
+            <input type='number' value={dollarValue} onChange={handleConvertionToEth} placeholder='DOLLAR' /></div> 
+        </div>
       </div>
 
     </div>

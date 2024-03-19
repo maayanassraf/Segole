@@ -6,10 +6,10 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const LineGraph = (props) => {
 
     const data = {
-        labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        labels: props.dots.hours,
         datasets: [
             {
-                data: props.dots,
+                data: props.dots.prices,
                 fill: false,
                 borderWidth: 2,
                 borderColor: (context) => {
@@ -29,7 +29,7 @@ const LineGraph = (props) => {
         plugins: {
             title: {
                 display: true,
-                text: "Last 10 Values"
+                text: "Last 24 Hours"
             },
             legend: {
                 display: false
