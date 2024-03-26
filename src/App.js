@@ -44,7 +44,7 @@ function App() {
 
     intervalRef.current = setInterval(async () => {
         getData()
-    }, 1000 * 0.5) 
+    }, 1000 * 30) 
 
     return () => {
       clearInterval(intervalRef.current)
