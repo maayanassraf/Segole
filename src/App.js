@@ -22,7 +22,7 @@ function App() {
           const color = change > 0 ? 'green' : 'red'
           
           let priceAndHour = data.prices.map(price => {
-            let t = new Date(price[0])
+            const t = new Date(price[0])
             if(t.getMinutes() < 4)
               return {price: price[1].toFixed(2), hour: `${t.getHours()}:00`}
             return null
