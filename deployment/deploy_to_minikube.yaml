@@ -1,0 +1,18 @@
+---
+- name: go minikube
+  hosts: localhost
+  gather_facts: False
+
+  vars:
+
+    image_name: maayanassraf/segole
+    image_tag: 1.0
+    replicas: 4
+
+  tasks:
+
+    - name: get latest image from docker hub
+      shell: |
+        docker pull {{ image_name }}:latest
+      register: image_hash
+      changed_when: false

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: segole
+  labels:
+    app: segole
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: segole
+  template:
+    metadata:
+        labels:
+          app: segole
+    spec:
+      containers:
+      - name: server
+        image: maayanassraf/segole:latest
