@@ -6,7 +6,8 @@ on:
       - 'app/**'
     branches:
       - main
-
+env:
+  BASE_IMAGE_NAME: maayanassraf/segole
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -14,45 +15,57 @@ jobs:
       - name: Checkout the repo code
         uses: actions/checkout@v2
 
-      - name: Build and push image
+      - name: Get from docker hub latest image
+        id: get_info
         run: |
           cd app
           
-          # Login to docker & Building new image
+          # Login to docker
           docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
           
-          BASE_IMAGE_NAME=maayanassraf/segole
-          TAGGED_IMAGE_NAME=$BASE_IMAGE_NAME:v1.${{ github.run_number }}
-          docker build -t $TAGGED_IMAGE_NAME -t $BASE_IMAGE_NAME:latest .
-          docker push $BASE_IMAGE_NAME --all-tags
-          
-          
-          #!/bin/bash
-
-          # Define the image name (without tag)
-          IMAGE_NAME=maayanassraf/segole
-
           # Pull the image with the "latest" tag
-          docker pull $IMAGE_NAME:latest
-
+          docker pull ${{ env.BASE_IMAGE_NAME }}:latest
+          
           # Get the Image ID of the latest tag
-          IMAGE_ID=$(docker inspect --format '{{.RepoDigests}}' $IMAGE_NAME:latest | cut -d "@" -f2 | sed 's/.$//')
+          IMAGE_ID=$(docker inspect --format '{{.RepoDigests}}' ${{ env.BASE_IMAGE_NAME }}:latest | cut -d "@" -f2 | sed 's/.$//')
+          echo $IMAGE_ID >> $GITHUB_OUTPUT
 
           # Query Docker Hub to find all tags for this image using the Docker Hub API
-          TAGS=$(curl -s "https://hub.docker.com/v2/repositories/$IMAGE_NAME/tags/")
+          TAGS=$(curl -s "https://hub.docker.com/v2/repositories/$BASE_IMAGE_NAME/tags/")
+          echo $TAGS >> $GITHUB_OUTPUT
 
-          # Use jq to filter and display tags and match the image ID with tags
-          echo "Tags for image '$IMAGE_NAME' on Docker Hub:"
-          TRUE_TAG=$(echo "$TAGS" | jq -r '.results[] | select(.images[].digest == "'$IMAGE_ID'") | .name' | grep ^[0-9])
-          
+      # Use jq to filter and display tags and match the image ID with tags
+      - name: uses jq to process...
+        uses: sergeysova/jq-action@v2
+        id: latest_true_tag
+        with:
+          cmd: TRUE_TAG=$(echo "${{ steps.get_info.outputs.TAGS }}" | jq -r '.results[] | select(.images[].digest == "'${{ steps.get_info.outputs.IMAGE_ID }}'") | .name' | grep ^[0-9])
+
+      - name: Increment latest tag by 1 (patch only)
+        id: new_version
+        run: |
           # Split the version into major, minor, and patch
-          IFS='.' read -r major minor patch <<< "$TRUE_TAG"
+          IFS='.' read -r major minor patch <<< "${{ steps.latest_true_tag.outputs.value }}"
 
           # Increment the patch version
           ((patch++))
 
           # Reconstruct the version string
-          new_version="$major.$minor.$patch"
+          NEW_VERSION="$major.$minor.$patch"
 
           # Output the new version
-          echo "$new_version"
+          echo "$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Builds new image with the '$NEW_VERSION' parameter as tag
+        run: |
+          
+          TAGGED_IMAGE_NAME=${{ env.BASE_IMAGE_NAME }}:${{ steps.new_version.outputs.NEW_VERSION }}
+          
+          # Builds new image with latest tag & new 'actual version' tag
+          docker build -t $TAGGED_IMAGE_NAME -t $BASE_IMAGE_NAME:latest .
+          
+          # Login to docker
+          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
+          
+          # Push image to docker hub
+          docker push $BASE_IMAGE_NAME --all-tags

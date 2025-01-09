@@ -16,4 +16,4 @@ spec:
     spec:
       containers:
       - name: server
-        image: maayanassraf/segole:latest
+        image: maayanassraf/segole:1.0.1

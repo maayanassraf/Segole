@@ -5,14 +5,103 @@
 
   vars:
 
-    image_name: maayanassraf/segole
-    image_tag: 1.0
-    replicas: 4
+    local_user: maayan
+    ansible_become_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          61373434386339666132393837373366616463643930333339336666316539396563313130656165
+          3139373538306237376537303861626166373538623466610a346662343433313530396635613262
+          64653966623537313366373863356139363331373438363339366361303532373838313065316266
+          6230663064323866340a633064633064643233653539633232653465666536653164666633303937
+          6332
 
   tasks:
+    - name: Install required system packages
+      become: yes
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
 
-    - name: get latest image from docker hub
-      shell: |
-        docker pull {{ image_name }}:latest
-      register: image_hash
-      changed_when: false
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      become: yes
+      apt:
+        pkg: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Add the current user to docker group
+      become: yes
+      user:
+        name: "{{ local_user }}"
+        groups: docker
+        append: yes
+
+    - name: Apply the user adding without logoff
+      shell: newgrp docker
+
+    - name: Download kubectl binary
+      get_url:
+        url: https://dl.k8s.io/release/v1.25.5/bin/linux/amd64/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+
+    - name: Download Minikube binary
+      become: yes
+      get_url:
+        url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        dest: /usr/local/bin/minikube
+        mode: '0755'
+
+    - name: Start Minikube
+      command: minikube start --driver=docker
+
+    - name: Apply the deployment file for the app with kubectl
+      command: kubectl apply -f segole_deployment.yaml
+
+    - name: Apply the service file for the app with kubectl
+      command: kubectl apply -f segole_service.yaml
+
+    - name: Check if the pod is in Running state
+      shell: kubectl get pods | grep segole | grep Running
+      register: command_result
+      retries: 5
+      delay: 15
+      until: command_result.rc == 0
+
+    - name: Exposes minikube service
+      command: minikube service segole-service --url
+      register: service_url
+
+    - name: Display exposed service url
+      debug:
+        var: service_url.stdout
+
+#    - name: Check Minikube status
+#      command: minikube status
+#      register: minikube_status
+#
+#    - name: Display Minikube status
+#      debug:
+#        var: minikube_status.stdout
+#    - name: get latest image from docker hub
+#      shell: |
+#        docker pull {{ image_name }}:latest
+#      register: image_hash
+#      changed_when: false
