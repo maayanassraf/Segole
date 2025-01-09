@@ -35,6 +35,7 @@ jobs:
           echo "TAGS<<EOF" >> $GITHUB_OUTPUT
           echo "$TAGS" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
+          echo "$TAGS"
 
       - name: Install jq
         run: sudo apt-get install jq
