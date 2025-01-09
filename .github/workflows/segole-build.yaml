@@ -41,6 +41,7 @@ jobs:
         with:
           cmd: echo "${{ steps.get_info.outputs.TAGS }}" | jq -r '.results[] | select(.images[].digest == "'${{ steps.get_info.outputs.IMAGE_ID }}'") | .name' | grep ^[0-9]
           multiline: true
+
       - name: Increment latest tag by 1 (patch only)
         id: new_version
         run: |
