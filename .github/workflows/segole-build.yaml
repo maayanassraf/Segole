@@ -41,7 +41,7 @@ jobs:
       - name: uses jq to process...
         id: latest_true_tag
         run: |
-          TRUE_TAG=$(echo ${{ steps.get_info.outputs.TAGS }} | jq -r '.results[] | select(.images[].digest == "${{ steps.get_info.outputs.IMAGE_ID }})" | .name' | grep ^[0-9])
+          TRUE_TAG=$(echo ${{ steps.get_info.outputs.TAGS }} | jq -r '.results[] | select(.images[].digest == "${{ steps.get_info.outputs.IMAGE_ID }}") | .name' | grep ^[0-9])
           echo "TRUE_TAG=TRUE_TAG" >> $GITHUB_OUTPUT
 
       - name: Increment latest tag by 1 (patch only)
