@@ -72,6 +72,9 @@
     - name: Start Minikube
       command: minikube start --driver=docker
 
+    - name: Change tag version in the deployment file
+      command:
+
     - name: Apply the deployment file for the app with kubectl
       command: kubectl apply -f segole_deployment.yaml
 
