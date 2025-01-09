@@ -31,7 +31,7 @@ jobs:
           echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_OUTPUT
 
           # Query Docker Hub to find all tags for this image using the Docker Hub API
-          wget "https://hub.docker.com/v2/repositories/${{ env.BASE_IMAGE_NAME }}/tags/"
+          wget "https://hub.docker.com/v2/repositories/${{ env.BASE_IMAGE_NAME }}/tags"
           TAGS=$(cat tags) 
           echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
           echo "$TAGS"
