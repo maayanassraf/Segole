@@ -28,11 +28,11 @@ jobs:
           
           # Get the Image ID of the latest tag
           IMAGE_ID=$(docker inspect --format '{{.RepoDigests}}' ${{ env.BASE_IMAGE_NAME }}:latest | cut -d "@" -f2 | sed 's/.$//')
-          echo $IMAGE_ID >> $GITHUB_OUTPUT
+          echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_OUTPUT
 
           # Query Docker Hub to find all tags for this image using the Docker Hub API
           TAGS=$(curl -s "https://hub.docker.com/v2/repositories/$BASE_IMAGE_NAME/tags/")
-          echo $TAGS >> $GITHUB_OUTPUT
+          echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
 
       # Use jq to filter and display tags and match the image ID with tags
       - name: uses jq to process...
@@ -54,7 +54,7 @@ jobs:
           NEW_VERSION="$major.$minor.$patch"
 
           # Output the new version
-          echo "$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Builds new image with the '$NEW_VERSION' parameter as tag
         run: |
