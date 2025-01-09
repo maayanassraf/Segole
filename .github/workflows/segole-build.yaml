@@ -39,7 +39,7 @@ jobs:
         uses: sergeysova/jq-action@v2
         id: latest_true_tag
         with:
-          cmd: TRUE_TAG=$(echo "${{ steps.get_info.outputs.TAGS }}" | jq -r '.results[] | select(.images[].digest == "'${{ steps.get_info.outputs.IMAGE_ID }}'") | .name' | grep ^[0-9])
+          cmd: echo "${{ steps.get_info.outputs.TAGS }}" | jq -r '.results[] | select(.images[].digest == "'${{ steps.get_info.outputs.IMAGE_ID }}'") | .name' | grep ^[0-9]
 
       - name: Increment latest tag by 1 (patch only)
         id: new_version
