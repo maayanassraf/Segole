@@ -32,7 +32,9 @@ jobs:
 
           # Query Docker Hub to find all tags for this image using the Docker Hub API
           TAGS=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.BASE_IMAGE_NAME }}/tags/")
-          echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
+          echo "TAGS<<EOF" >> $GITHUB_OUTPUT
+          echo "$TAGS" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
 
       - name: Install jq
         run: sudo apt-get install jq
@@ -46,9 +48,7 @@ jobs:
           echo "${{ steps.get_info.outputs.TAGS }}"
           echo ""
           TRUE_TAG=$(echo ${{ steps.get_info.outputs.TAGS }} | jq -r '.results[] | select(.images[].digest == "'${{ steps.get_info.outputs.IMAGE_ID }}'") | .name' | grep ^[0-9])
-          echo "TRUE_TAG<<EOF" >> $GITHUB_OUTPUT
-          echo "$TRUE_TAG" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          echo "TRUE_TAG=$TRUE_TAG" >> $GITHUB_OUTPUT
 
       - name: Increment latest tag by 1 (patch only)
         id: new_version
