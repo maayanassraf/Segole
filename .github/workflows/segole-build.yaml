@@ -31,10 +31,9 @@ jobs:
           echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_OUTPUT
 
           # Query Docker Hub to find all tags for this image using the Docker Hub API
-          TAGS=$(curl -s "https://hub.docker.com/v2/repositories/${{ env.BASE_IMAGE_NAME }}/tags/")
-          echo "TAGS<<EOF" >> $GITHUB_OUTPUT
-          echo "$TAGS" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          wget "https://hub.docker.com/v2/repositories/${{ env.BASE_IMAGE_NAME }}/tags/"
+          TAGS=$(cat tags) 
+          echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
           echo "$TAGS"
 
       - name: Install jq
