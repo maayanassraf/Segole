@@ -6,6 +6,8 @@
   vars:
 
     local_user: maayan
+    base_image_name: maayanassraf/segole
+    tag: 1.0.3
     ansible_become_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           61373434386339666132393837373366616463643930333339336666316539396563313130656165
@@ -73,7 +75,10 @@
       command: minikube start --driver=docker
 
     - name: Change tag version in the deployment file
-      command:
+      lineinfile:
+        path: "segole_deployment.yaml"
+        regexp: 'image:'
+        line: '        image: {{ base_image_name }}:{{ tag }}'
 
     - name: Apply the deployment file for the app with kubectl
       command: kubectl apply -f segole_deployment.yaml
