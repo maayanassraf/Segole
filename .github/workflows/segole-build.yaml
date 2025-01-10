@@ -27,33 +27,19 @@ jobs:
           docker pull ${{ env.BASE_IMAGE_NAME }}:latest
           
           # Get the Image ID of the latest tag
-          IMAGE_ID=$(docker inspect --format '{{.RepoDigests}}' ${{ env.BASE_IMAGE_NAME }}:latest | cut -d "@" -f2 | sed 's/.$//')
+          IMAGE_ID=$(docker images --filter=reference="${{ env.BASE_IMAGE_NAME }}:latest" --format "{{.ID}}")
           echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_OUTPUT
 
-          # Query Docker Hub to find all tags for this image using the Docker Hub API
-          TAGS=$(curl --max-time 600 "https://hub.docker.com/v2/repositories/${{ env.BASE_IMAGE_NAME }}/tags")
-          echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
-          echo "$TAGS"
+          # Inspect the image for labels or metadata that indicate its version
+          VERSION=$(docker inspect --format '{{ index .Config.Labels "version" }}' $IMAGE_ID)
+          VERSION=$(echo $VERSION | cut -d ":" -f2)
+          echo VERSION=$VERSION >> $GITHUB_OUTPUT
 
-      - name: Install jq
-        run: sudo apt-get install jq
-
-      # Use jq to filter and display tags and match the image ID with tags
-      - name: uses jq to process...
-        id: latest_true_tag
-        run: |
-          echo ${{ steps.get_info.outputs.TAGS }}
-          echo ""
-          echo "${{ steps.get_info.outputs.TAGS }}"
-          echo ""
-          TRUE_TAG=$(echo ${{ steps.get_info.outputs.TAGS }} | jq -r '.results[] | select(.images[].digest == "'${{ steps.get_info.outputs.IMAGE_ID }}'") | .name' | grep ^[0-9])
-          echo "TRUE_TAG=$TRUE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Increment latest tag by 1 (patch only)
+      - name: Increment latest tag & LABEL instruction by 1 (patch only)
         id: new_version
         run: |
           # Split the version into major, minor, and patch
-          IFS='.' read -r major minor patch <<< "${{ steps.latest_true_tag.outputs.TRUE_TAG }}"
+          IFS='.' read -r major minor patch <<< "${{ steps.get_info.outputs.VERSION }}"
 
           # Increment the patch version
           ((patch++))
@@ -63,6 +49,10 @@ jobs:
 
           # Output the new version
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Edit Dockerfile - LABEL instruction
+        run: |
+          sed -i 's/^LABEL version="[^"]*"/LABEL version="'$VERSION'"/'  app/Dockerfile
 
       - name: Builds new image with the '$NEW_VERSION' parameter as tag
         run: |
