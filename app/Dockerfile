@@ -2,6 +2,6 @@ FROM node:22-bullseye
 WORKDIR /app
 COPY . .
 RUN npm install
-LABEL version="1.0.2"
+LABEL version="placeholder"
 
 CMD ["npm", "start"]

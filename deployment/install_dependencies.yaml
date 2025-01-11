@@ -31,10 +31,14 @@
       state: latest
       update_cache: true
 
+  - name: Gets local user
+    command: echo $USER
+    register: local_user
+
   - name: Add the current user to docker group
     become: yes
     user:
-      name: "{{ local_user }}"
+      name: "{{ local_user.stdout }}"
       groups: docker
       append: yes
 

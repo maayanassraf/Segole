@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+# Segole Service - Capitolis Home Assignment
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project uses the code from this [Segole React App](https://github.com/LiorZinger123/Segole).
 
-## Available Scripts
+## Background
 
-In the project directory, you can run:
+### About The App
+The Segole App is a web application that shows the current Ethereum (cryptocurrency) value in dollars.
+It shows a graph with the change in value in last 24 hours and offers a convertor between dollars to Ethereum.
 
-### `npm start`
+### About The Implementation
+I've run this project in VirtualBox machine, using Ubuntu Distro.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+The application is containerized with new Dockerfile added to the app directory.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The Application runs as a pod in minikube environment (based on docker).
 
-### `npm test`
+I have used a NodePort service to expose the application locally 
+(by using `minikube service 'service-name' --url` - which runs as a process and creating a tunnel to the cluster).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## CI Process
 
-### `npm run build`
+The CI process uses **Github Actions** as a CI tool.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- The workflow triggers automatically when pushing changes to the `app` folder to github (in Branch `master`).
+- The workflow pulls from Docker Hub the application `latest` image and with using `docker inspect` 
+retrieves his 'true version' (which represented by a `LABEL` instruction in the Dockerfile when building the image).
+- The workflow takes the current version and increment his `patch version` by one 
+(e.g. when the latest version was 1.2.3 it will increment to 1.2.4) 
+- The workflow edits the Dockerfile - changes in the `LABEL` instruction the version to the new incremented version.
+- The workflow builds new image version (tagged as the new incremented version and latest) and pushes it to Docker Hub.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Deployment
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The Deployment process for the app uses **Ansible**, everything implemented is under the `deployment` directory.
 
-### `npm run eject`
+The deployment includes 2 main parts: 
+1. Install required dependencies.
+2. Run the app using Minikube.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Those 2 part separated to 2 different files for convenience.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The first part (the `install_dependencies.yaml` file under the `deployment` folder), 
+includes:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- installs dependencies for installing docker. 
+- Installs docker. 
+- Adds the local user that running ansible to the docker group.
+- Installs kubectl.
+- Installs minikube.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The second part (the `deploy_to_minikube.yaml` file under the `deployment` folder), includes:
 
-## Learn More
+- Starts minikube. 
+- Changes the tag version in the deployment file.
+- Applies the deployment & service files using kubectl 
+- Exposes the service using the `minikube service 'service-name' --url` command - which runs as a process and creating a tunnel 
+to the cluster and generates a local url for use.
+- Shows the url in the stdout for easy access to the web page.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Step by Step for running the app
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+For running this app using the ansible deployment you need to have Ubuntu operating system.
+Follow the below steps for running the app in an Ubuntu machine:
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Clone this project using the command `git clone 'repo-url'`.
+2. Install ansible (if not already installed) by `sudo apt install ansible`.
+3. Enter the project's locally created folder.
+4. Change in the `main.yaml` file under the `deployment` folder the `tag` variable to the desired version for running the app
+   (you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
+5. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
+for using the become method when running ansible. 
+6. While running this command you will be asked to enter a vault password - saves this password locally in a file named
+`vault_password.txt` under the deployment directory. 
+7. Take the output from the above `ansible-vault` command and replace the `ansible_become_password` variable 
+under the `main.yaml` file with your own generated value. 
+8. Run in your terminal the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`. 
+9. Enter to the generated url that will appear in the stdout when ansible ends running. 
+10. Explore The app.

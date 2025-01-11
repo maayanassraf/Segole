@@ -4,7 +4,6 @@
   gather_facts: False
 
   vars:
-    local_user: maayan
     base_image_name: maayanassraf/segole
     tag: 1.0.3
     ansible_become_password: !vault |

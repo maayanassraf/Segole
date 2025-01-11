@@ -18,11 +18,6 @@ jobs:
       - name: Get from docker hub latest image & inspect his 'true' version
         id: get_info
         run: |
-          cd app
-          
-          # Login to docker
-          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
-          
           # Pull the image with the "latest" tag
           docker pull ${{ env.BASE_IMAGE_NAME }}:latest
           
@@ -59,7 +54,9 @@ jobs:
       - name: Edit Dockerfile - LABEL instruction
         run: |
           # Changes the LABEL in Dockerfile to tne new version
-          sed -i 's/^LABEL version="[^"]*"/LABEL version="'$VERSION'"/'  app/Dockerfile
+          sed -i 's/^LABEL version="[^"]*"/LABEL version="'${{ steps.new_version.outputs.NEW_VERSION }}'"/'  app/Dockerfile
+          
+          cat app/Dockerfile | grep ${{ steps.new_version.outputs.NEW_VERSION }}
 
       - name: Builds new image with the '$NEW_VERSION' parameter as tag
         run: |
