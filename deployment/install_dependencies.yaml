@@ -1,0 +1,55 @@
+---
+# Install dependencies
+  - name: Install required system packages for docker
+    become: yes
+    apt:
+      pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3-pip
+        - virtualenv
+        - python3-setuptools
+      state: latest
+      update_cache: true
+
+  - name: Add Docker GPG apt Key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu focal stable
+      state: present
+
+  - name: Update apt and install docker-ce
+    become: yes
+    apt:
+      pkg: docker-ce
+      state: latest
+      update_cache: true
+
+  - name: Add the current user to docker group
+    become: yes
+    user:
+      name: "{{ local_user }}"
+      groups: docker
+      append: yes
+
+  - name: Apply the new user's group without logoff
+    shell: newgrp docker
+
+  - name: Download kubectl binary
+    get_url:
+      url: https://dl.k8s.io/release/v1.25.5/bin/linux/amd64/kubectl
+      dest: /usr/local/bin/kubectl
+      mode: '0755'
+
+  - name: Download Minikube binary
+    become: yes
+    get_url:
+      url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+      dest: /usr/local/bin/minikube
+      mode: '0755'

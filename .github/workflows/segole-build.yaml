@@ -15,7 +15,7 @@ jobs:
       - name: Checkout the repo code
         uses: actions/checkout@v2
 
-      - name: Get from docker hub latest image
+      - name: Get from docker hub latest image & inspect his 'true' version
         id: get_info
         run: |
           cd app
@@ -28,13 +28,17 @@ jobs:
           
           # Get the Image ID of the latest tag
           IMAGE_ID=$(docker images --filter=reference="${{ env.BASE_IMAGE_NAME }}:latest" --format "{{.ID}}")
-          echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_OUTPUT
 
-          # Inspect the image for labels or metadata that indicate its version
+          # Inspect the image for labels that indicate its version
           VERSION=$(docker inspect --format '{{ index .Config.Labels "version" }}' $IMAGE_ID)
+          
+          # Saves the version as number only
           VERSION=$(echo $VERSION | cut -d ":" -f2)
+          
+          # Saves the version to GITHUB_OUTPUT for using it in next steps
           echo VERSION=$VERSION >> $GITHUB_OUTPUT
-
+          
+          echo "The current latest image version is: $VERSION"
       - name: Increment latest tag & LABEL instruction by 1 (patch only)
         id: new_version
         run: |
@@ -47,11 +51,14 @@ jobs:
           # Reconstruct the version string
           NEW_VERSION="$major.$minor.$patch"
 
-          # Output the new version
+          # Saves the new version to GITHUB_OUTPUT for using it in next steps
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          echo "The new image version will be created is: $NEW_VERSION"
 
       - name: Edit Dockerfile - LABEL instruction
         run: |
+          # Changes the LABEL in Dockerfile to tne new version
           sed -i 's/^LABEL version="[^"]*"/LABEL version="'$VERSION'"/'  app/Dockerfile
 
       - name: Builds new image with the '$NEW_VERSION' parameter as tag
