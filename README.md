@@ -38,6 +38,9 @@ under the `main.yaml` file with your own generated value.
 9. Enter to the generated url that will appear in the stdout when ansible ends running. 
 10. Explore The app.
 
+for using non-ubuntu operating system you can install all needed dependencies (docker, kubectl, minikube and ansible) 
+and edit the `main.yaml` file under the `deployment` folder and remove the task `Include dependencies install in playbook`. 
+
 ## CI Process
 
 The CI process uses **Github Actions** as a CI tool.
