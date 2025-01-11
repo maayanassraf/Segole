@@ -18,6 +18,26 @@ The Application runs as a pod in minikube environment (based on docker).
 I have used a NodePort service to expose the application locally 
 (by using `minikube service 'service-name' --url` - which runs as a process and creating a tunnel to the cluster).
 
+## Step by Step for running the app
+
+For running this app using the ansible deployment you need to have Ubuntu operating system.
+Follow the below steps for running the app in an Ubuntu machine:
+
+1. Clone this project using the command `git clone 'repo-url'`.
+2. Install ansible (if not already installed) by `sudo apt install ansible`.
+3. Enter the project's locally created folder.
+4. Change in the `main.yaml` file under the `deployment` folder the `tag` variable to the desired version for running the app
+   (you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
+5. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
+for using the become method when running ansible. 
+6. While running this command you will be asked to enter a vault password - saves this password locally in a file named
+`vault_password.txt` under the `deployment` directory. 
+7. Take the output from the above `ansible-vault` command and replace the `ansible_become_password` variable 
+under the `main.yaml` file with your own generated value. 
+8. Run in your terminal the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`. 
+9. Enter to the generated url that will appear in the stdout when ansible ends running. 
+10. Explore The app.
+
 ## CI Process
 
 The CI process uses **Github Actions** as a CI tool.
@@ -58,22 +78,4 @@ The second part (the `deploy_to_minikube.yaml` file under the `deployment` folde
 to the cluster and generates a local url for use.
 - Shows the url in the stdout for easy access to the web page.
 
-## Step by Step for running the app
-
-For running this app using the ansible deployment you need to have Ubuntu operating system.
-Follow the below steps for running the app in an Ubuntu machine:
-
-1. Clone this project using the command `git clone 'repo-url'`.
-2. Install ansible (if not already installed) by `sudo apt install ansible`.
-3. Enter the project's locally created folder.
-4. Change in the `main.yaml` file under the `deployment` folder the `tag` variable to the desired version for running the app
-   (you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
-5. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
-for using the become method when running ansible. 
-6. While running this command you will be asked to enter a vault password - saves this password locally in a file named
-`vault_password.txt` under the deployment directory. 
-7. Take the output from the above `ansible-vault` command and replace the `ansible_become_password` variable 
-under the `main.yaml` file with your own generated value. 
-8. Run in your terminal the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`. 
-9. Enter to the generated url that will appear in the stdout when ansible ends running. 
-10. Explore The app.
+I have used ansible vault for encrypting my `ansible_become_password` for running commands needed to be run as root.
