@@ -1,11 +1,4 @@
-name: Segole Service Build
-
-on:
-  push:
-    paths:
-      - 'app/**'
-    branches:
-      - master
+name: Segole Service Build Minor Version
 
 env:
   BASE_IMAGE_NAME: maayanassraf/segole
@@ -36,14 +29,17 @@ jobs:
           echo VERSION=$VERSION >> $GITHUB_OUTPUT
           
           echo "The current latest image version is: $VERSION"
-      - name: Increment latest tag & LABEL instruction by 1 (patch only)
+      - name: Increment latest tag & LABEL instruction by 1 (minor only & set patch to 0)
         id: new_version
         run: |
           # Split the version into major, minor, and patch
           IFS='.' read -r major minor patch <<< "${{ steps.get_info.outputs.VERSION }}"
 
-          # Increment the patch version
-          ((patch++))
+          # Increment minor by 1
+          ((minor++))
+
+          # Reset patch to 0
+          patch=0
 
           # Reconstruct the version string
           NEW_VERSION="$major.$minor.$patch"
@@ -75,14 +71,14 @@ jobs:
           # Push image to docker hub
           docker push $BASE_IMAGE_NAME --all-tags
 
-      - name: Changes the main.yaml file with the new tag version & commit
-        run: |
-          # changes in the main.yaml file the tag variable value
-          sed -i 's/tag: [^ ]*/tag: '" ${{ steps.new_version.outputs.NEW_VERSION }}"'/g' deployment/main.yaml
-            
-          git config --global user.name "github_segole"
-          git config --global user.email "github_segole@noreply.com"
-            
-          git add deployment/main.yaml
-          git commit -m "change tag version to: ${{ steps.new_version.outputs.NEW_VERSION }} in the deployment/main.yaml"
-          git push
+#      - name: Changes the main.yaml file with the new tag version & commit
+#        run: |
+#          # changes in the main.yaml file the tag variable value
+#          sed -i 's/tag: [^ ]*/tag: '" ${{ steps.new_version.outputs.NEW_VERSION }}"'/g' deployment/main.yaml
+#
+#          git config --global user.name "github_segole"
+#          git config --global user.email "github_segole@noreply.com"
+#
+#          git add deployment/main.yaml
+#          git commit -m "change tag version to: ${{ steps.new_version.outputs.NEW_VERSION }} in the deployment/main.yaml"
+#          git push
