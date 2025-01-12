@@ -72,3 +72,15 @@ jobs:
           
           # Push image to docker hub
           docker push $BASE_IMAGE_NAME --all-tags
+
+      - name: Changes the main.yaml file with the new tag version & commit
+        run: |
+          # changes in the main.yaml file the tag variable value
+          sed -i 's/tag: [^ ]*/tag: '" ${{ steps.new_version.outputs.NEW_VERSION }}"'/g' deployment/main.yaml
+            
+          git config --global user.name "github_segole"
+          git config --global user.email "github_segole@noreply.com"
+            
+          git add deployment/main.yaml
+          git commit -m "change tag version to: ${{ steps.new_version.outputs.NEW_VERSION }} in the deployment/main.yaml"
+          git push
