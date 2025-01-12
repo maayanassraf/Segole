@@ -45,7 +45,7 @@ and then follow the above steps.
 
 For adding the monitoring implementation follow the below steps:
 1. Remove from the `main.yaml` file, under the `deployment` folder, the hashtags (#) 
-from last two lines (will enable the calling for additional file for implementing the monitoring stack).
+from last two lines (will enable the calling for additional file - for implementing the monitoring stack).
 2. Run again the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`
 
 ## CI Process
@@ -59,8 +59,8 @@ retrieves his 'true version' (which represented by a `LABEL` instruction in the 
 (e.g. when the latest version was 1.2.3 it will increment to 1.2.4). 
 - The workflow edits the Dockerfile - changes in the `LABEL` instruction the version to the new incremented version.
 - The workflow builds new image version (tagged as the new incremented version and latest) and pushes it to Docker Hub.
-- The workflow changes the `main.yaml` file, under the `deployment` directory, the `tag` variable to the new tag version generated 
-& commit the changes to github for later use (when running ansible) in the deployment phase.
+- The workflow changes in the `main.yaml` file, under the `deployment` directory, the `tag` variable to the new tag version generated 
+& commit the changes to Github for later use (when running ansible) in the deployment phase.
 
 For pushing new images to Docker Hub I have used my Docker Hub username & password as repository secret saved manually in the Github Repository configuration. 
 
@@ -91,7 +91,7 @@ The second part (the `deploy_to_minikube.yaml` file under the `deployment` folde
 
 - Starts minikube. 
 - Changes the tag version in the deployment file.
-- Applies the deployment & service files using kubectl 
+- Applies the deployment & service files using kubectl. 
 - Exposes the service using the `minikube service 'service-name' --url` command - which runs as a process and creating a tunnel 
 to the cluster and generates a local url for use.
 - Shows the url in the stdout for easy access to the web page.
@@ -112,9 +112,7 @@ Applying Grafana helm chart uses the `grafana_values.yaml`, under the `deploymen
 Those values implementing persistence storage for grafana, `Prometheus` local server (which implemented by helm) as a datasource,
 and defining an already existing dashboard from grafana as a dashboard for cluster monitoring.
 
-For adding the monitoring stack to the deployment you will need to edit the `main.yaml` under the `deployment` folder
-and removes the hashtags (#) from last two lines (enables the calling for additional file for implementing the monitoring stack), 
-then run again the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`
+Watch the above `Step by Step Guide` section for adding the automated ansible implementation for the monitoring.
 
 For watching the monitoring implemented in Grafana, run the below commands:
 1. Get the Grafana 'admin' user password, by running the command: 
@@ -125,4 +123,7 @@ For watching the monitoring implemented in Grafana, run the below commands:
 
 `kubectl --namespace default port-forward $POD_NAME 3000`
 
-3. Login with the password from step 1 and the username: admin.
+3. Enter your web browser and search for the url: `localhost:3000`.
+4. Login with the password from step 1 and the username: admin.
+5. In the `dashboards` tab you can watch the already implemented dashboard 
+(shows information from Prometheus server).
