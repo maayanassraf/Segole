@@ -20,7 +20,7 @@ I have used a NodePort service to expose the application locally
 
 ## Step by Step for running the app
 
-For running this app using the ansible deployment you need to have Ubuntu operating system.
+For running this app using the ansible deployment you need to have **Ubuntu** operating system.
 Follow the below steps for running the app in an Ubuntu machine:
 
 1. Clone this project using the command `git clone 'repo-url'`.
@@ -28,7 +28,7 @@ Follow the below steps for running the app in an Ubuntu machine:
 3. Enter the project's locally created folder.
 4. Change in the `main.yaml` file, under the `deployment` folder, the `tag` variable to the desired version for running the app
    (you can keep the current configuration- already the valued version of latest image, or you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
-5. Change in the `main.yaml` file, under the `deployment` folder, the `ansible_become_user` to desired local admin user for running specific tasks as admmin.
+5. Change in the `main.yaml` file, under the `deployment` folder, the `ansible_become_user` to desired local admin user for running specific tasks as admin.
 6. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
 for using the become method for running specific tasks as root. 
 7. While running this command you will be asked to enter a vault password - saves this password locally in a file named
@@ -53,11 +53,15 @@ The CI process uses **Github Actions** as a CI tool.
 - The workflow pulls from Docker Hub the application `latest` image and with using `docker inspect` 
 retrieves his 'true version' (which represented by a `LABEL` instruction in the Dockerfile when building the image).
 - The workflow takes the current version and increment his `patch version` by one 
-(e.g. when the latest version was 1.2.3 it will increment to 1.2.4) 
+(e.g. when the latest version was 1.2.3 it will increment to 1.2.4). 
 - The workflow edits the Dockerfile - changes in the `LABEL` instruction the version to the new incremented version.
 - The workflow builds new image version (tagged as the new incremented version and latest) and pushes it to Docker Hub.
 - The workflow changes the `main.yaml` file, under the `deployment` directory, the `tag` variable to the new tag version generated 
 & commit the changes to github for later use (when running ansible) in the deployment phase.
+
+> Note:    
+> I chose to implement a CI workflow for creating new patch versions only (and not minor/major version) 
+> in thought that minor and major versions should be built and pushed to Docker Hub with more consideration and manually involvement.
 
 ## Deployment
 
