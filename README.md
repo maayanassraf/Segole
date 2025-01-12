@@ -32,7 +32,7 @@ Follow the below steps for running the app in an Ubuntu machine:
 6. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
 for using the become method for running specific tasks as root. 
 7. While running this command you will be asked to enter a vault password - saves this password locally in a file named
-`vault_password.txt`, under the `deployment` directory. 
+`vault_password.txt`, under the `deployment` directory and set this file in the `.gitignore` files. 
 8. Take the output from the above `ansible-vault` command and replace the `ansible_become_password` variable 
 under the `main.yaml` file with your own generated value. 
 9. Run in your terminal the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`. 
@@ -43,7 +43,10 @@ For using non-ubuntu operating system you can install all needed dependencies (d
 edit the `main.yaml` file under the `deployment` folder and remove the task `'Include dependencies install in playbook'`
 and then follow the above steps.
 
-For adding the monitoring implementation look in the below `Monitoring` section.
+For adding the monitoring implementation follow the below steps:
+1. Remove from the `main.yaml` file, under the `deployment` folder, the hashtags (#) 
+from last two lines (will enable the calling for additional file for implementing the monitoring stack).
+2. Run again the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`
 
 ## CI Process
 
@@ -58,6 +61,8 @@ retrieves his 'true version' (which represented by a `LABEL` instruction in the 
 - The workflow builds new image version (tagged as the new incremented version and latest) and pushes it to Docker Hub.
 - The workflow changes the `main.yaml` file, under the `deployment` directory, the `tag` variable to the new tag version generated 
 & commit the changes to github for later use (when running ansible) in the deployment phase.
+
+For pushing new images to Docker Hub I have used my Docker Hub username & password as repository secret saved manually in the Github Repository configuration. 
 
 > Note:    
 > I chose to implement a CI workflow for creating new patch versions only (and not minor/major version) 
