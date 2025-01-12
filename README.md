@@ -11,7 +11,7 @@ It shows a graph with the change in value in last 24 hours and offers a converto
 ### About The Implementation
 I've run this project in VirtualBox machine, using Ubuntu Distro.
 
-The application is containerized with new Dockerfile added to the app directory.
+The application is containerized with new Dockerfile added to the `app` directory.
 
 The Application runs as a pod in minikube environment (based on docker).
 
@@ -27,19 +27,20 @@ Follow the below steps for running the app in an Ubuntu machine:
 2. Install ansible (if not already installed) by `sudo apt install ansible`.
 3. Enter the project's locally created folder.
 4. Change in the `main.yaml` file under the `deployment` folder the `tag` variable to the desired version for running the app
-   (you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
-5. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
-for using the become method when running ansible. 
-6. While running this command you will be asked to enter a vault password - saves this password locally in a file named
+   (you can keep the current configuration- already the valued version of latest deployment, or you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
+5. Change in the `main.yaml` file under the `deployment` folder the `ansible_become_user` to desired local admin user for running specific tasks as admmin.
+6. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
+for using the become method for running specific tasks as root. 
+7. While running this command you will be asked to enter a vault password - saves this password locally in a file named
 `vault_password.txt` under the `deployment` directory. 
-7. Take the output from the above `ansible-vault` command and replace the `ansible_become_password` variable 
+8. Take the output from the above `ansible-vault` command and replace the `ansible_become_password` variable 
 under the `main.yaml` file with your own generated value. 
-8. Run in your terminal the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`. 
-9. Enter to the generated url that will appear in the stdout when ansible ends running. 
-10. Explore The app.
+9. Run in your terminal the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`. 
+10. Enter to the generated url that will appear in the stdout when ansible ends running. 
+11. Explore The app!
 
 For using non-ubuntu operating system you can install all needed dependencies (docker, kubectl, minikube and ansible), 
-edit the `main.yaml` file under the `deployment` folder and remove the task `Include dependencies install in playbook`
+edit the `main.yaml` file under the `deployment` folder and remove the task `'Include dependencies install in playbook'`
 and then follow the above steps.
 
 For adding the monitoring implementation look in the below `Monitoring` section.
@@ -98,7 +99,7 @@ This file includes the following steps:
 
 Applying Grafana helm chart uses the `grafana_values.yaml`, under the `deployment/k8s` folder.
 Those values implementing persistence storage for grafana, `Prometheus` local server (which implemented by helm) as a datasource,
-and defining an already existing dashboard from grafana as a dashboard for monitoring.
+and defining an already existing dashboard from grafana as a dashboard for cluster monitoring.
 
 For adding the monitoring stack to the deployment you will need to edit the `main.yaml` under the `deployment` folder
 and removes the hashtags (#) from last two lines (enables the calling for additional file for implementing the monitoring stack), 
