@@ -60,20 +60,20 @@ jobs:
           
           cat app/Dockerfile | grep ${{ steps.new_version.outputs.NEW_VERSION }}
 
-      - name: Builds new image with the '$NEW_VERSION' parameter as tag
-        run: |
-          cd app 
-          
-          TAGGED_IMAGE_NAME=${{ env.BASE_IMAGE_NAME }}:${{ steps.new_version.outputs.NEW_VERSION }}
-          
-          # Builds new image with latest tag & new 'actual version' tag
-          docker build -t $TAGGED_IMAGE_NAME -t $BASE_IMAGE_NAME:latest .
-          
-          # Login to docker
-          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
-          
-          # Push image to docker hub
-          docker push $BASE_IMAGE_NAME --all-tags
+#      - name: Builds new image with the '$NEW_VERSION' parameter as tag
+#        run: |
+#          cd app
+#
+#          TAGGED_IMAGE_NAME=${{ env.BASE_IMAGE_NAME }}:${{ steps.new_version.outputs.NEW_VERSION }}
+#
+#          # Builds new image with latest tag & new 'actual version' tag
+#          docker build -t $TAGGED_IMAGE_NAME -t $BASE_IMAGE_NAME:latest .
+#
+#          # Login to docker
+#          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
+#
+#          # Push image to docker hub
+#          docker push $BASE_IMAGE_NAME --all-tags
 
 #      - name: Changes the main.yaml file with the new tag version & commit
 #        run: |
