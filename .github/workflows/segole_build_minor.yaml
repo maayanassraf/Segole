@@ -36,8 +36,9 @@ jobs:
       - name: Increment latest tag & LABEL instruction by 1 (minor only & set patch to 0)
         id: new_version
         run: |
+          version=${{ steps.get_info.outputs.VERSION }}
           # Split the version into major, minor, and patch
-          IFS='.' read -r major minor patch <<< "${{ steps.get_info.outputs.VERSION }}"
+          IFS='.' read -r major minor patch <<< "$version"
 
           # Reset patch to 0
           patch=0
