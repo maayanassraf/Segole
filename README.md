@@ -106,3 +106,14 @@ and defining an already existing dashboard from grafana as a dashboard for clust
 For adding the monitoring stack to the deployment you will need to edit the `main.yaml` under the `deployment` folder
 and removes the hashtags (#) from last two lines (enables the calling for additional file for implementing the monitoring stack), 
 then run again the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`
+
+For watching the monitoring implemented in Grafana, run the below commands:
+1. Get the Grafana 'admin' user password, by running the command: 
+`kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo`
+2. Access locally to Grafana UI by runnig the commands:
+
+`export POD_NAME=$(kubectl get pods --namespace default -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")`
+
+`kubectl --namespace default port-forward $POD_NAME 3000`
+
+3. Login with the password from step 1 and the username: admin.
