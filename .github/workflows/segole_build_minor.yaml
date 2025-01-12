@@ -43,7 +43,7 @@ jobs:
           ((minor++))
 
           # Reset patch to 0
-          patch=0
+          # patch=0
 
           # Reconstruct the version string
           NEW_VERSION="$major.$minor.$patch"
