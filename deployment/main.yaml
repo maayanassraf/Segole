@@ -20,3 +20,6 @@
 
      - name: Include deployment phase in playbook
        include_tasks: deploy_to_minikube.yaml
+
+#     - name: Include monitoring phase in playbook
+#       include_tasks: apply_monitoring.yaml

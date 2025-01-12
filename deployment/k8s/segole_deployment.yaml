@@ -17,3 +17,12 @@ spec:
       containers:
       - name: server
         image: maayanassraf/segole:1.0.3
+        ports:
+          - containerPort: 3000
+        resources:
+          requests:
+            cpu: 500m
+            memory: 500Mi
+          limits:
+            cpu: 500m
+            memory: 500Mi

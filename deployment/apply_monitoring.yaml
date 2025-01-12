@@ -1,0 +1,25 @@
+---
+- name: Add Helm repository
+  shell: |
+    curl https://get.helm.sh/helm-v3.9.0-linux-amd64.tar.gz -o /tmp/helm.tar.gz
+    tar -xvf /tmp/helm.tar.gz -C /tmp/
+    mv /tmp/linux-amd64/helm /usr/local/bin/helm
+  become: yes
+
+- name: Get prometheus repository info
+  shell: |
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo update
+
+- name: Install prometheus chart
+  command: helm install prom prometheus-community/prometheus
+  ignore_errors: yes
+
+- name: Get grafana repository info
+  shell: |
+    helm repo add grafana https://grafana.github.io/helm-charts
+    helm repo update
+
+- name: Install grafana chart
+  command: helm install -f k8s/grafana_values.yaml grafana grafana/grafana
+  ignore_errors: yes
