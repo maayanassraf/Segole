@@ -38,9 +38,11 @@ under the `main.yaml` file with your own generated value.
 9. Enter to the generated url that will appear in the stdout when ansible ends running. 
 10. Explore The app.
 
-for using non-ubuntu operating system you can install all needed dependencies (docker, kubectl, minikube and ansible), 
+For using non-ubuntu operating system you can install all needed dependencies (docker, kubectl, minikube and ansible), 
 edit the `main.yaml` file under the `deployment` folder and remove the task `Include dependencies install in playbook`
 and then follow the above steps.
+
+For adding the monitoring implementation look in the below `Monitoring` section.
 
 ## CI Process
 
@@ -83,3 +85,21 @@ to the cluster and generates a local url for use.
 - Shows the url in the stdout for easy access to the web page.
 
 I have used ansible vault for encrypting my `ansible_become_password` for running commands needed to be run as root.
+
+## Monitoring
+
+I have implemented another part in the ansible deployment, in the file `apply_monitoring.yaml` under the `deployment` directory.
+This file includes the following steps:
+- Installs Helm.
+- Gets Prometheus repository info.
+- Install Prometheus helm chart.
+- Get Grafana repository info.
+- Install Grafana Helm chart.
+
+Applying Grafana helm chart uses the `grafana_values.yaml`, under the `deployment/k8s` folder.
+Those values implementing persistence storage for grafana, `Prometheus` local server (which implemented by helm) as a datasource,
+and defining an already existing dashboard from grafana as a dashboard for monitoring.
+
+For adding the monitoring stack to the deployment you will need to edit the `main.yaml` under the `deployment` folder
+and removes the hashtags (#) from last two lines (enables the calling for additional file for implementing the monitoring stack), 
+then run again the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`
