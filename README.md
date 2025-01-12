@@ -56,6 +56,8 @@ retrieves his 'true version' (which represented by a `LABEL` instruction in the 
 (e.g. when the latest version was 1.2.3 it will increment to 1.2.4) 
 - The workflow edits the Dockerfile - changes in the `LABEL` instruction the version to the new incremented version.
 - The workflow builds new image version (tagged as the new incremented version and latest) and pushes it to Docker Hub.
+- The workflow changes the `main.yaml` file, under the `deployment` directory, the `tag` variable to the new tag version generated 
+& commit the changes to github for later use (when running ansible) in the deployment phase.
 
 ## Deployment
 
