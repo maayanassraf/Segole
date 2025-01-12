@@ -26,13 +26,13 @@ Follow the below steps for running the app in an Ubuntu machine:
 1. Clone this project using the command `git clone 'repo-url'`.
 2. Install ansible (if not already installed) by `sudo apt install ansible`.
 3. Enter the project's locally created folder.
-4. Change in the `main.yaml` file under the `deployment` folder the `tag` variable to the desired version for running the app
-   (you can keep the current configuration- already the valued version of latest deployment, or you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
-5. Change in the `main.yaml` file under the `deployment` folder the `ansible_become_user` to desired local admin user for running specific tasks as admmin.
+4. Change in the `main.yaml` file, under the `deployment` folder, the `tag` variable to the desired version for running the app
+   (you can keep the current configuration- already the valued version of latest image, or you can look for existing images in [Segole Docker Hub repo](https://hub.docker.com/repository/docker/maayanassraf/segole/general)). 
+5. Change in the `main.yaml` file, under the `deployment` folder, the `ansible_become_user` to desired local admin user for running specific tasks as admmin.
 6. Create your own encrypted `ansible_become_password` using the command `ansible-vault encrypt_string ''your-encripted-password'' --name 'ansible_become_password'`
 for using the become method for running specific tasks as root. 
 7. While running this command you will be asked to enter a vault password - saves this password locally in a file named
-`vault_password.txt` under the `deployment` directory. 
+`vault_password.txt`, under the `deployment` directory. 
 8. Take the output from the above `ansible-vault` command and replace the `ansible_become_password` variable 
 under the `main.yaml` file with your own generated value. 
 9. Run in your terminal the command: `ansible-playbook deployment/main.yaml --vault-password-file deployment/vault_password.txt`. 
