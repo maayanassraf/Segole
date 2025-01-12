@@ -39,11 +39,11 @@ jobs:
           # Split the version into major, minor, and patch
           IFS='.' read -r major minor patch <<< "${{ steps.get_info.outputs.VERSION }}"
 
-          # Increment minor by 1
-          #((minor++))
-
           # Reset patch to 0
           patch=0
+          
+          # Increment minor by 1
+          ((minor++))
 
           # Reconstruct the version string
           NEW_VERSION="$major.$minor.$patch"
