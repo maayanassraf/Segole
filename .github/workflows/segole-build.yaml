@@ -78,11 +78,17 @@ jobs:
       - name: Changes the main.yaml file with the new tag version & commit
         run: |
           # changes in the main.yaml file the tag variable value
-          sed -i 's/tag: [^ ]*/tag: '" ${{ steps.new_version.outputs.NEW_VERSION }}"'/g' deployment/main.yaml
-            
+          sed -i 's/tag: [^ ]*/tag: '"${{ steps.new_version.outputs.NEW_VERSION }}"'/g' deployment/main.yaml
+          
+          # Define a git username & email for uploading code from this Github Actions Workflow  
           git config --global user.name "github_segole"
           git config --global user.email "github_segole@noreply.com"
-            
+          
+          # Stages the specific changed file   
           git add deployment/main.yaml
+          
+          # Commits the changes
           git commit -m "change tag version to: ${{ steps.new_version.outputs.NEW_VERSION }} in the deployment/main.yaml"
+          
+          # Pushes the changes to the Github Repo
           git push
