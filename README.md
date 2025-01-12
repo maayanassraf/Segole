@@ -81,7 +81,7 @@ Those 2 part separated to 2 different files for convenience.
 The first part (the `install_dependencies.yaml` file under the `deployment` folder), 
 includes:
 
-- installs dependencies for installing docker. 
+- Installs dependencies for installing docker. 
 - Installs docker. 
 - Adds the local user that running ansible to the docker group.
 - Installs kubectl.
@@ -109,7 +109,7 @@ This file includes the following steps:
 - Install Grafana Helm chart.
 
 Applying Grafana helm chart uses the `grafana_values.yaml`, under the `deployment/k8s` folder.
-Those values implementing persistence storage for grafana, `Prometheus` local server (which implemented by helm) as a datasource,
+Those values implementing persistence storage for grafana, `Prometheus` local server (which already implemented by helm) as a datasource,
 and defining an already existing dashboard from grafana as a dashboard for cluster monitoring.
 
 Watch the above `Step by Step Guide` section for adding the automated ansible implementation for the monitoring.
