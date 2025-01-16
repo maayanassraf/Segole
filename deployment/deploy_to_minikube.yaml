@@ -22,6 +22,9 @@
     delay: 15
     until: command_result.rc == 0
 
+  - name: Waiting time for app loading
+    command: sleep 70
+
   - name: Exposes minikube service
     command: minikube service segole-service --url
     register: service_url
